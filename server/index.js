@@ -26,6 +26,10 @@ app.get('/', (req, res) => {
     res.send('Khonic Accounting Server is running (Modular)');
 });
 
+app.get('/api/health', (req, res) => {
+    res.status(200).json({ status: 'ok' });
+});
+
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
