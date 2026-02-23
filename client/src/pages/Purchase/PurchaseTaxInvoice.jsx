@@ -3,7 +3,7 @@ import Layout from '../../components/Layout/Layout';
 import PageHeader from '../../components/Layout/PageHeader';
 import { Search, Plus, Eye } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import taxInvoiceService from '../../services/taxInvoiceService';
 import nav from '../../constants/navigation.json';
 import statuses from '../../constants/statuses.json';
 
@@ -15,8 +15,8 @@ const PurchaseTaxInvoice = () => {
     useEffect(() => {
         const fetchInvoices = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/api/sales/purchase-tax-invoices');
-                setInvoices(response.data);
+                const data = await taxInvoiceService.getAllPurchaseTaxInvoices();
+                setInvoices(data);
             } catch (err) {
                 console.error('Error fetching purchase tax invoices:', err);
             } finally {
@@ -51,7 +51,7 @@ const PurchaseTaxInvoice = () => {
 
                     <button
                         onClick={() => navigate('/faktur-pajak-pembelian/baru')}
-                        className="flex items-center gap-2 bg-[#4A4A4A] hover:bg-[#3A3A3A] text-white px-6 py-3 rounded-xl font-bold transition-all shadow-sm whitespace-nowrap"
+                        className="flex items-center gap-2 bg-[#4A4A4A] hover:bg-[#3A3A3A] text-white px-6 py-3 rounded-xl transition-all shadow-sm whitespace-nowrap"
                     >
                         <Plus size={20} />
                         Buat Faktur Pajak Pembelian
@@ -61,7 +61,7 @@ const PurchaseTaxInvoice = () => {
                 {/* Table */}
                 <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
                     {/* Table Header */}
-                    <div className="grid grid-cols-12 gap-4 px-8 py-5 bg-white border-b border-gray-100 text-[11px] font-bold text-gray-500 uppercase tracking-wider">
+                    <div className="grid grid-cols-12 gap-4 px-8 py-5 bg-white border-b border-gray-100 text-[11px] font-bold text-gray-500 tracking-wider">
                         <div className="col-span-3">Nomor Faktur Pajak</div>
                         <div className="col-span-2">Tanggal Faktur</div>
                         <div className="col-span-2">Nama Supplier</div>
@@ -84,8 +84,8 @@ const PurchaseTaxInvoice = () => {
                                     className="grid grid-cols-12 gap-4 px-8 py-6 items-center hover:bg-gray-50/50 transition-colors cursor-pointer group"
                                     onClick={() => navigate(`/faktur-pajak-pembelian/detail/${invoice.id}`)}
                                 >
-                                    <div className="col-span-3 text-sm text-gray-300 font-medium tracking-tight">{invoice.tax_invoice_no}</div>
-                                    <div className="col-span-2 text-sm text-gray-900 font-bold">{new Date(invoice.date).toLocaleDateString('id-ID')}</div>
+                                    <div className="col-span-3 text-sm text-gray-400 font-medium tracking-tight font-mono uppercase">{invoice.tax_invoice_no}</div>
+                                    <div className="col-span-2 text-sm text-gray-900">{new Date(invoice.date).toLocaleDateString('id-ID')}</div>
                                     <div className="col-span-2 text-sm text-gray-700 font-medium">{invoice.supplier_name}</div>
                                     <div className="col-span-2 text-sm text-gray-500 font-medium">{invoice.po_no}</div>
                                     <div className="col-span-1 text-sm text-right font-black text-gray-900">Rp {parseFloat(invoice.total).toLocaleString('id-ID')}</div>

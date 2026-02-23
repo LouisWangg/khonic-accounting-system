@@ -52,6 +52,7 @@ function AppRoutes() {
       <Route path="/faktur-pajak-penjualan/detail/:id" element={<ProtectedRoute><SalesTaxInvoiceDetail /></ProtectedRoute>} />
       <Route path="/faktur-pajak-pembelian" element={<ProtectedRoute><PurchaseTaxInvoice /></ProtectedRoute>} />
       <Route path="/faktur-pajak-pembelian/baru" element={<ProtectedRoute><PurchaseTaxInvoiceForm /></ProtectedRoute>} />
+      <Route path="/faktur-pajak-pembelian/edit/:id" element={<ProtectedRoute><PurchaseTaxInvoiceForm /></ProtectedRoute>} />
       <Route path="/faktur-pajak-pembelian/detail/:id" element={<ProtectedRoute><PurchaseTaxInvoiceDetail /></ProtectedRoute>} />
 
       {/* Catch all - redirect to list-akun (which will redirect to / if not auth) */}

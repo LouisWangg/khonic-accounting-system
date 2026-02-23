@@ -1,10 +1,10 @@
-const db = require('./src/config/db');
+const db = require('../../src/config/db');
 const fs = require('fs');
 const path = require('path');
 
 async function setup() {
     try {
-        const schema = fs.readFileSync(path.join(__dirname, 'db', 'reseed_invoices.sql'), 'utf8');
+        const schema = fs.readFileSync(path.join(__dirname, 'reseed_invoices.sql'), 'utf8');
         await db.query(schema);
         console.log('Invoices reseeded with 5 items per customer.');
     } catch (err) {

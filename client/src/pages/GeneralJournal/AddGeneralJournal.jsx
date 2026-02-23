@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import accountService from '../../services/accountService';
+import journalService from '../../services/journalService';
 import Layout from '../../components/Layout/Layout';
 import PageHeader from '../../components/Layout/PageHeader';
 import { Trash2, Plus, ChevronDown, CheckCircle } from 'lucide-react';
@@ -23,8 +25,7 @@ const AddGeneralJournal = () => {
     React.useEffect(() => {
         const fetchAccounts = async () => {
             try {
-                const response = await fetch('http://localhost:5000/api/accounts');
-                const data = await response.json();
+                const data = await accountService.getAllAccounts();
                 setAccounts(data);
             } catch (err) {
                 console.error('Error fetching accounts:', err);
@@ -96,48 +97,40 @@ const AddGeneralJournal = () => {
             const [year, month, day] = dueDate.split('-');
             const formattedDate = `${day}/${month}/${year}`;
 
-            const response = await fetch('http://localhost:5000/api/journals', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    date: formattedDate,
-                    description,
-                    status,
-                    lines: lines
-                        .filter(l => l.account !== '') // Only send lines with an account
-                        .map(l => ({
-                            account: l.account,
-                            debit: l.debit || 0,
-                            credit: l.credit || 0
-                        }))
-                })
+            await journalService.createJournal({
+                date: formattedDate,
+                description,
+                status,
+                lines: lines
+                    .filter(l => l.account !== '') // Only send lines with an account
+                    .map(line => ({
+                        account: line.account,
+                        debit: line.debit || 0,
+                        credit: line.credit || 0
+                    }))
             });
 
-            if (!response.ok) throw new Error('Failed to save journal');
-
-            navigate('/jurnal-umum', {
-                state: {
-                    notification: {
-                        message: status === 'Posted' ? 'Tambah Jurnal Umum Berhasil' : 'Simpan Draft Jurnal Umum Berhasil',
-                        type: 'success'
-                    }
-                }
+            navigate(nav.general_journal.path, {
+                state: { notification: { message: `Jurnal Berhasil Disimpan sebagai ${status}!`, type: 'success' } }
             });
         } catch (err) {
             console.error('Error saving journal:', err);
-            alert('Gagal menyimpan jurnal. Pastikan server modular nyala.');
+            alert(err.response?.data?.error || 'Gagal menyimpan jurnal');
         }
     };
 
     const renderAccountOptions = () => {
+        // Identify accounts that have children (act as parents)
+        const parentIds = new Set(accounts.map(acc => acc.parent_id).filter(id => id !== null));
+
         return accounts.map(acc => {
-            const isSubAccount = acc.is_system;
+            const isHeader = acc.is_system || parentIds.has(acc.id);
             return (
                 <option
                     key={acc.id}
                     value={acc.id}
-                    disabled={isSubAccount}
-                    className={isSubAccount ? 'text-gray-300' : 'text-gray-900'}
+                    disabled={isHeader}
+                    className={isHeader ? 'text-gray-400 font-bold bg-gray-50' : 'text-gray-900'}
                 >
                     {'\u00A0'.repeat(acc.level * 4)}{acc.code} - {acc.name}
                 </option>

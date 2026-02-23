@@ -1,48 +1,80 @@
 {
-    "INV-2026-08-010": [
+    "INV-2025-09-003": [
         {
-            "name": "Lunar Strawberry Ice Cream 60ml by Vapezoo - 3mg",
-            "qty": 2,
-            "price": 1412500,
-            "total": 2825000
+            "name": "Jasa Audit Finansial Q3 2025",
+            "qty": 1,
+            "price": 2500000,
+            "total": 2500000
         },
         {
-            "name": "Lost Vape Ursa Nano Pod Kit - Wave Cyan",
+            "name": "Biaya Pelaporan SPT Tahunan",
             "qty": 1,
-            "price": 2825937,
-            "total": 2825937
+            "price": 1000000,
+            "total": 1000000
+        },
+        {
+            "name": "Meterai dan Dokumen",
+            "qty": 1,
+            "price": 61811,
+            "total": 61811
         }
     ],
-    "INV-2026-08-013": [
+    "INV-2025-09-005": [
         {
-            "name": "Makna Ice v3 Sea Salt Caramel Latte 60ml",
+            "name": "Monitor Dell UltraSharp 24\"",
+            "qty": 2,
+            "price": 850000,
+            "total": 1700000
+        },
+        {
+            "name": "Keyboard Mechanical Keychron K2",
             "qty": 1,
-            "price": 2252252,
-            "total": 2252252
+            "price": 500000,
+            "total": 500000
+        },
+        {
+            "name": "Mouse Logitech MX Master 3S",
+            "qty": 1,
+            "price": 223730,
+            "total": 223730
         }
     ],
-    "INV-2026-08-015": [
+    "INV-2025-09-004": [
         {
-            "name": "Druga Foxy Pod v2 Mod Only - Black Chrome",
-            "qty": 5,
-            "price": 1801802,
-            "total": 9009010
+            "name": "Langganan AWS Enterprise - Jan 2026",
+            "qty": 1,
+            "price": 5000000,
+            "total": 5000000
+        },
+        {
+            "name": "Managed Services Support Level 2",
+            "qty": 1,
+            "price": 2049889,
+            "total": 2049889
         }
     ],
-    "INV-2026-08-012": [
+    "INV-2025-08-009": [
         {
-            "name": "Makna Ice v3 Sea Salt Caramel Latte 60ml",
-            "qty": 1,
-            "price": 450450,
-            "total": 450450
+            "name": "Maintenance Rutin Lift Gedung",
+            "qty": 2,
+            "price": 250000,
+            "total": 500000
         }
     ],
-    "INV-2026-08-014": [
+    "INV-2025-08-008": [
         {
-            "name": "Druga Foxy Pod v2 Mod Only - Black Chrome",
+            "name": "Pembersihan Area Kantor",
             "qty": 1,
-            "price": 450450,
-            "total": 450450
+            "price": 2500000,
+            "total": 2500000
+        }
+    ],
+    "INV-2025-08-006": [
+        {
+            "name": "Jasa Keamanan Outsourcing",
+            "qty": 1,
+            "price": 500000,
+            "total": 500000
         }
     ]
 }

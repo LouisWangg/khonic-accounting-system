@@ -1,7 +1,10 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import journalService from '../../services/journalService';
 import Layout from '../../components/Layout/Layout';
 import { Plus, Search, RefreshCw, MoreHorizontal, CheckCircle, AlertTriangle, Edit2 } from 'lucide-react';
+import nav from '../../constants/navigation.json';
+import PageHeader from '../../components/Layout/PageHeader';
 
 const GeneralJournalList = () => {
     // Initial Mock Data
@@ -45,8 +48,7 @@ const GeneralJournalList = () => {
     React.useEffect(() => {
         const fetchJournals = async () => {
             try {
-                const response = await fetch('http://localhost:5000/api/journals');
-                const data = await response.json();
+                const data = await journalService.getAllJournals();
                 setRawJournals(data);
             } catch (err) {
                 console.error('Error fetching journals:', err);
@@ -120,17 +122,10 @@ const GeneralJournalList = () => {
         if (!selectedJournal || !cancelReason.trim()) return;
 
         try {
-            const response = await fetch(`http://localhost:5000/api/journals/${selectedJournal.id}/reverse`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ cancel_reason: cancelReason })
-            });
-
-            if (!response.ok) throw new Error('Failed to reverse journal');
+            await journalService.reverseJournal(selectedJournal.id, cancelReason);
 
             // Refresh list
-            const journalsResp = await fetch('http://localhost:5000/api/journals');
-            const data = await journalsResp.json();
+            const data = await journalService.getAllJournals();
             setRawJournals(data);
 
             setIsCancelModalOpen(false);
@@ -143,7 +138,13 @@ const GeneralJournalList = () => {
     };
 
     return (
-        <Layout title="Jurnal Umum">
+        <Layout>
+            <PageHeader
+                title={nav.general_journal.label}
+                breadcrumbs={[
+                    { label: nav.general_journal.label, path: nav.general_journal.path }
+                ]}
+            />
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 min-h-[calc(100vh-8rem)] relative">
                 {loading && (
                     <div className="absolute inset-0 bg-white/50 z-50 flex items-center justify-center rounded-xl">

@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import authService from '../services/authService';
 
 const AuthContext = createContext(null);
 
@@ -32,37 +33,23 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     const login = async (email, password) => {
-        const response = await fetch('http://localhost:5000/api/auth/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password }),
-        });
-
-        const data = await response.json();
-
-        if (response.ok) {
+        try {
+            const data = await authService.login({ email, password });
             const userData = { ...data.user, token: data.token };
             setUser(userData);
             localStorage.setItem(STORAGE_KEY, JSON.stringify(userData));
             return userData;
-        } else {
-            throw new Error(data.message || 'Login gagal');
+        } catch (err) {
+            throw new Error(err.response?.data?.message || 'Login gagal');
         }
     };
 
     const register = async (name, email, password) => {
-        const response = await fetch('http://localhost:5000/api/auth/register', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, email, password }),
-        });
-
-        const data = await response.json();
-
-        if (response.ok) {
+        try {
+            const data = await authService.register({ name, email, password });
             return data;
-        } else {
-            throw new Error(data.message || 'Registrasi gagal');
+        } catch (err) {
+            throw new Error(err.response?.data?.message || 'Registrasi gagal');
         }
     };
 

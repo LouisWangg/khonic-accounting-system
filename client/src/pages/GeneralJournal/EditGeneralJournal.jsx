@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import accountService from '../../services/accountService';
+import journalService from '../../services/journalService';
 import Layout from '../../components/Layout/Layout';
 import PageHeader from '../../components/Layout/PageHeader';
 import { Trash2, Plus, ChevronDown, CheckCircle } from 'lucide-react';
@@ -25,17 +27,11 @@ const EditGeneralJournal = () => {
         const fetchData = async () => {
             try {
                 // Fetch accounts
-                const accResp = await fetch('http://localhost:5000/api/accounts');
-                const accData = await accResp.json();
+                const accData = await accountService.getAllAccounts();
                 setAccounts(accData);
 
                 // Fetch journal details
-                const journalResp = await fetch(`http://localhost:5000/api/journals/${id}`);
-                if (!journalResp.ok) {
-                    navigate('/jurnal-umum');
-                    return;
-                }
-                const journal = await journalResp.json();
+                const journal = await journalService.getJournalById(id);
 
                 // Convert DD/MM/YYYY to YYYY-MM-DD for input type="date"
                 const [day, month, year] = journal.date.split('/');
@@ -51,7 +47,7 @@ const EditGeneralJournal = () => {
                 setJournalNumber(journal.number || '');
             } catch (err) {
                 console.error('Error fetching data:', err);
-                navigate('/jurnal-umum');
+                navigate(nav.general_journal.path);
             } finally {
                 setLoading(false);
             }
@@ -112,36 +108,23 @@ const EditGeneralJournal = () => {
             const [year, month, day] = dueDate.split('-');
             const formattedDate = `${day}/${month}/${year}`;
 
-            const response = await fetch(`http://localhost:5000/api/journals/${id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    date: formattedDate,
-                    description,
-                    status,
-                    lines: lines
-                        .filter(l => l.account !== '')
-                        .map(l => ({
-                            account: l.account,
-                            debit: l.debit || 0,
-                            credit: l.credit || 0
-                        }))
-                })
+            await journalService.updateJournal(id, {
+                date: formattedDate,
+                description,
+                status,
+                lines: lines.map(line => ({
+                    account: line.account,
+                    debit: line.debit || 0,
+                    credit: line.credit || 0
+                }))
             });
 
-            if (!response.ok) throw new Error('Failed to update journal');
-
-            navigate('/jurnal-umum', {
-                state: {
-                    notification: {
-                        message: status === 'Posted' ? 'Update Jurnal Umum Berhasil' : 'Simpan Draft Jurnal Umum Berhasil',
-                        type: 'success'
-                    }
-                }
+            navigate(nav.general_journal.path, {
+                state: { notification: { message: `Jurnal Berhasil Diperbarui sebagai ${status}!`, type: 'success' } }
             });
         } catch (err) {
             console.error('Error updating journal:', err);
-            alert('Gagal mengupdate jurnal.');
+            alert(err.response?.data?.error || 'Gagal memperbarui jurnal');
         }
     };
 
@@ -150,14 +133,17 @@ const EditGeneralJournal = () => {
     };
 
     const renderAccountOptions = () => {
+        // Identify accounts that have children (act as parents)
+        const parentIds = new Set(accounts.map(acc => acc.parent_id).filter(id => id !== null));
+
         return accounts.map(acc => {
-            const isSubAccount = acc.is_system;
+            const isHeader = acc.is_system || parentIds.has(acc.id);
             return (
                 <option
                     key={acc.id}
                     value={acc.id}
-                    disabled={isSubAccount}
-                    className={isSubAccount ? 'text-gray-300' : 'text-gray-900'}
+                    disabled={isHeader}
+                    className={isHeader ? 'text-gray-400 font-bold bg-gray-50' : 'text-gray-900'}
                 >
                     {'\u00A0'.repeat(acc.level * 4)}{acc.code} - {acc.name}
                 </option>

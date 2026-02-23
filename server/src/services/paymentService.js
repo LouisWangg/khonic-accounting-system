@@ -19,9 +19,10 @@ const createCashBankPayment = async (paymentData) => {
         const journalNumber = `${yearPrefix}${String(parseInt(countResult.rows[0].count) + 1).padStart(3, '0')}`;
 
         // 2. Create Journal Header
+        const finalDate = date || new Date().toISOString().split('T')[0];
         const journalResult = await client.query(
             "INSERT INTO journals (date, number, description, status, type) VALUES ($1, $2, $3, 'Posted', 'Cash Payment') RETURNING id",
-            [date, journalNumber, `Pengeluaran Kas & Bank ${voucher_no}`]
+            [finalDate, journalNumber, `Pengeluaran Kas & Bank ${voucher_no}`]
         );
         const journalId = journalResult.rows[0].id;
 

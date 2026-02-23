@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import accountService from '../../services/accountService';
 import Layout from '../../components/Layout/Layout';
 import AddAccountModal from '../../components/Modals/AddAccountModal';
 import EditAccountModal from '../../components/Modals/EditAccountModal';
 import DeleteAccountModal from '../../components/Modals/DeleteAccountModal';
 import { Plus, Search, ChevronDown, ChevronUp, PencilLine, Trash2, CheckCircle, AlertTriangle, Lock } from 'lucide-react';
+import nav from '../../constants/navigation.json';
+import PageHeader from '../../components/Layout/PageHeader';
 
 // Removed initialAccounts mock
 
@@ -22,8 +25,7 @@ const AccountList = () => {
 
     const fetchAccounts = async () => {
         try {
-            const response = await fetch('http://localhost:5000/api/accounts');
-            const data = await response.json();
+            const data = await accountService.getAllAccounts();
 
             // Build tree from flat list
             const buildTree = (list) => {
@@ -80,28 +82,16 @@ const AccountList = () => {
 
             const parent = findParent(accounts, parent_id);
 
-            const response = await fetch('http://localhost:5000/api/accounts', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    id: code,
-                    code,
-                    name,
-                    level: parent ? parent.level + 1 : 0,
-                    type: parent ? parent.type : 'Assets',
-                    parent_id: parent_id,
-                    balance: parseBalance(balance),
-                    is_system: false
-                })
+            await accountService.createAccount({
+                id: code,
+                code,
+                name,
+                level: parent ? parent.level + 1 : 0,
+                type: parent ? parent.type : 'Assets',
+                parent_id: parent_id,
+                balance: parseBalance(balance),
+                is_system: false
             });
-
-            const responseData = await response.json();
-
-            if (!response.ok) {
-                setNotification({ message: responseData.error || 'Gagal tambah akun', type: 'error' });
-                setTimeout(() => setNotification(null), 5000);
-                return { success: false, message: responseData.error || 'Gagal tambah akun' };
-            }
 
             await fetchAccounts();
             setNotification({ message: 'Berhasil Tambah Akun!', type: 'success' });
@@ -109,43 +99,25 @@ const AccountList = () => {
             return { success: true };
         } catch (err) {
             console.error('Error adding account:', err);
-            setNotification({ message: err.message || 'Gagal tambah akun', type: 'error' });
+            const errorMsg = err.response?.data?.error || err.message || 'Gagal tambah akun';
+            setNotification({ message: errorMsg, type: 'error' });
             setTimeout(() => setNotification(null), 5000);
-            return { success: false, message: err.message || 'Gagal tambah akun' };
+            return { success: false, message: errorMsg };
         }
     };
 
     const handleEditAccount = async (updatedData) => {
         try {
-            const response = await fetch(`http://localhost:5000/api/accounts/${updatedData.id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    id: updatedData.id,
-                    code: updatedData.code,
-                    name: updatedData.name,
-                    level: updatedData.level,
-                    type: updatedData.type,
-                    parent_id: updatedData.parent_id,
-                    is_system: updatedData.is_system,
-                    balance: parseBalance(updatedData.balance)
-                })
+            await accountService.updateAccount(updatedData.id, {
+                id: updatedData.id,
+                code: updatedData.code,
+                name: updatedData.name,
+                level: updatedData.level,
+                type: updatedData.type,
+                parent_id: updatedData.parent_id,
+                is_system: updatedData.is_system,
+                balance: parseBalance(updatedData.balance)
             });
-
-            let responseData;
-            try {
-                responseData = await response.json();
-            } catch (jsonErr) {
-                console.warn('Response not JSON:', jsonErr);
-                responseData = { error: 'Gagal memproses data dari server' };
-            }
-
-            if (!response.ok) {
-                const errorMsg = responseData.error || `Gagal edit akun (${response.status})`;
-                setNotification({ message: errorMsg, type: 'error' });
-                setTimeout(() => setNotification(null), 5000);
-                return { success: false, message: errorMsg };
-            }
 
             await fetchAccounts();
             setNotification({ message: 'Berhasil Edit Akun!', type: 'success' });
@@ -153,29 +125,23 @@ const AccountList = () => {
             return { success: true };
         } catch (err) {
             console.error('Error updating account:', err);
-            setNotification({ message: err.message || 'Gagal edit akun', type: 'error' });
+            const errorMsg = err.response?.data?.error || err.message || 'Gagal edit akun';
+            setNotification({ message: errorMsg, type: 'error' });
             setTimeout(() => setNotification(null), 5000);
-            return { success: false, message: err.message || 'Gagal edit akun' };
+            return { success: false, message: errorMsg };
         }
     };
 
     const handleDeleteAccount = async (id) => {
         try {
-            const response = await fetch(`http://localhost:5000/api/accounts/${id}`, {
-                method: 'DELETE'
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Failed to delete account');
-            }
-
+            await accountService.deleteAccount(id);
             await fetchAccounts();
             setNotification({ message: 'Berhasil Hapus Akun!', type: 'success' });
             setTimeout(() => setNotification(null), 3000);
         } catch (err) {
             console.error('Error deleting account:', err);
-            setNotification({ message: err.message, type: 'warning' });
+            const errorMsg = err.response?.data?.error || err.message || 'Gagal hapus akun';
+            setNotification({ message: errorMsg, type: 'warning' });
             setTimeout(() => setNotification(null), 5000);
         }
     };
@@ -397,7 +363,13 @@ const AccountList = () => {
     };
 
     return (
-        <Layout title="Daftar Akun">
+        <Layout>
+            <PageHeader
+                title={nav.accounts.label}
+                breadcrumbs={[
+                    { label: nav.accounts.label, path: nav.accounts.path }
+                ]}
+            />
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 min-h-[calc(100vh-8rem)] relative">
                 {loading && (
                     <div className="absolute inset-0 bg-white/50 z-50 flex items-center justify-center rounded-xl">

@@ -40,9 +40,9 @@ const createJournalWithClient = async (client, journalData) => {
     let { date, number, description, status, lines } = journalData;
 
     // Convert DD/MM/YYYY to YYYY-MM-DD for PG if it contains '/'
-    let pgDate = date;
-    if (date.includes('/')) {
-        const [day, month, year] = date.split('/');
+    let pgDate = date || new Date().toISOString().split('T')[0];
+    if (typeof pgDate === 'string' && pgDate.includes('/')) {
+        const [day, month, year] = pgDate.split('/');
         pgDate = `${year}-${month}-${day}`;
     }
 
@@ -65,7 +65,7 @@ const createJournalWithClient = async (client, journalData) => {
     for (const line of lines) {
         await client.query(
             'INSERT INTO journal_lines (journal_id, account_id, debit, credit) VALUES ($1, $2, $3, $4)',
-            [journalId, line.account, line.debit, line.credit]
+            [journalId, line.account_id || line.account, line.debit, line.credit]
         );
     }
 
@@ -125,7 +125,7 @@ const updateJournal = async (id, journalData) => {
             for (const line of lines) {
                 await client.query(
                     'INSERT INTO journal_lines (journal_id, account_id, debit, credit) VALUES ($1, $2, $3, $4)',
-                    [id, line.account, line.debit, line.credit]
+                    [id, line.account_id || line.account, line.debit, line.credit]
                 );
             }
         }
