@@ -5,6 +5,11 @@ import invoiceService from '../../services/invoiceService';
 import discountsData from '../../data/discounts.json';
 import { formatCurrency, formatDate } from '../../utils/formatUtils';
 import SuccessModal from './SuccessModal';
+
+const formatNumber = (num) => {
+    return new Intl.NumberFormat('id-ID').format(num);
+};
+
 // Discount account codes and names
 
 const RecordPaymentModal = ({ isOpen, onClose }) => {
@@ -99,7 +104,10 @@ const RecordPaymentModal = ({ isOpen, onClose }) => {
         if (!selectedDiscount) return amount;
         const discount = discounts.find(d => d.code === selectedDiscount);
         if (!discount) return amount;
-        return Math.round(amount * (1 - parseFloat(discount.percentage) / 100));
+        // User pays (100 - %) percent, but the logical payment is 100%.
+        // The display should show how much cash is needed to match the sisa.
+        // If sisa is 100 and discount is 20%, user only needs 80 cash.
+        return Math.floor(amount * (1 - parseFloat(discount.percentage) / 100));
     };
 
     const totalAllocated = Object.keys(selectedInvoices).reduce((sum, id) => {
@@ -337,8 +345,8 @@ const RecordPaymentModal = ({ isOpen, onClose }) => {
                             </div>
                             <div className="text-right">
                                 <div className="text-[10px] text-gray-500 mb-1 uppercase tracking-wider font-bold">Sisa Alokasi</div>
-                                <div className={`text-lg font-bold ${sisaAlokasi < 0 ? 'text-red-500' : 'text-green-600'}`}>
-                                    {sisaAlokasi < 0 ? '-' : '+'} {formatCurrency(Math.abs(sisaAlokasi))}
+                                <div className={`text-lg font-black tracking-tight ${sisaAlokasi < 0 ? 'text-red-600' : sisaAlokasi > 0 ? 'text-green-600' : 'text-gray-400'}`}>
+                                    {sisaAlokasi < 0 ? `-Rp ${formatNumber(Math.abs(sisaAlokasi))}` : sisaAlokasi > 0 ? `+Rp ${formatNumber(sisaAlokasi)}` : `Rp 0`}
                                 </div>
                             </div>
                         </div>
