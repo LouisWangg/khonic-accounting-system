@@ -143,8 +143,8 @@ const recordPayment = async (req, res) => {
         if (totalCashReceived > 0) {
             const journalLines = [
                 {
-                    account: accountId, // Bank/Cash receives the settled invoice part
-                    debit: totalLogicalUsed - totalDiscountUsed,
+                    account: accountId, // Bank/Cash receives the FULL physical cash
+                    debit: totalCashReceived,
                     credit: 0
                 }
             ];
@@ -168,19 +168,12 @@ const recordPayment = async (req, res) => {
                 });
             }
 
-            // Excess Scenario:
+            // 2. Uang Muka Pelanggan (Excess cash amount - recorded as liability)
             if (totalCashExcess > 0) {
-                // To satisfy "Sisa Alokasi to 212.000 balance", we record it as a direct receipt into 212.000
-                // This means the Bank balance only increases by the part that paid the invoice.
-                journalLines.push({
-                    account: '212.000',
-                    debit: totalCashExcess, // "Receiving" the excess into the deposit account
-                    credit: 0
-                });
                 journalLines.push({
                     account: '212.000',
                     debit: 0,
-                    credit: totalCashExcess // Creating the liability for the deposit
+                    credit: totalCashExcess
                 });
             }
 
