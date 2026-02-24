@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS accounts (
 -- Create Customers Table
 CREATE TABLE IF NOT EXISTS customers (
     id SERIAL PRIMARY KEY,
-    name TEXT NOT NULL
+    name TEXT UNIQUE NOT NULL
 );
 
 -- Create Discounts Table
