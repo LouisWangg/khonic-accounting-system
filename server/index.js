@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const path = require('path');
+const fs = require('fs');
 
 dotenv.config();
 
@@ -44,6 +45,19 @@ app.get('*path', (req, res) => {
     res.sendFile(path.join(__dirname, '../client/dist/index.html'));
 });
 
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
+const db = require('./src/config/db');
+
+async function initDb() {
+    const sql = fs.readFileSync(path.join(__dirname, 'db', 'schema.sql'), 'utf8');
+    await db.query(sql);
+    console.log('DB schema applied.');
+}
+
+initDb()
+    .then(() => {
+        app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
+    })
+    .catch(err => {
+        console.error('DB init failed:', err.message);
+        process.exit(1);
+    });
