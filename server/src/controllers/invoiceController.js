@@ -143,7 +143,7 @@ const recordPayment = async (req, res) => {
         if (totalCashReceived > 0) {
             const journalLines = [
                 {
-                    account: accountId, // Bank/Cash receives the FULL physical cash
+                    account: accountId, // Bank/Cash receives the FULL physical cash received
                     debit: totalCashReceived,
                     credit: 0
                 }
