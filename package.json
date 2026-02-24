@@ -1,17 +1,18 @@
 {
-    "name": "khonic-accounting-system",
-    "version": "1.0.0",
-    "private": true,
-    "scripts": {
-        "install-client": "cd client && npm install",
-        "install-server": "cd server && npm install",
-        "install-all": "npm run install-client && npm run install-server",
-        "build-client": "cd client && npm run build",
-        "start": "cd server && npm start",
-        "dev": "concurrently \"cd server && npm run dev\" \"cd client && npm run dev\"",
-        "build": "npm run install-all && npm run build-client"
-    },
-    "devDependencies": {
-        "concurrently": "^8.2.2"
-    }
+  "name": "khonic-accounting-system",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "install:all": "cd client && npm install && cd ../server && npm install",
+    "build": "cd client && npm run build",
+    "start": "cd server && node index.js",
+    "dev": "concurrently \"cd server && npm run dev\" \"cd client && npm run dev\"",
+    "postinstall": "npm run install:all"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
 }
