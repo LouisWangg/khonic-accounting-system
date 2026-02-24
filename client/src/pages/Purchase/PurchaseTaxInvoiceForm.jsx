@@ -243,8 +243,8 @@ const PurchaseTaxInvoiceForm = () => {
                                     <input
                                         type="text"
                                         value={poNumber}
-                                        readOnly
-                                        className="w-full px-4 py-3 rounded-xl border border-transparent bg-gray-50 text-gray-400 focus:outline-none text-sm font-medium"
+                                        disabled
+                                        className="w-full px-4 py-3 rounded-xl border border-transparent bg-gray-50 text-gray-400 focus:outline-none text-sm font-medium cursor-not-allowed"
                                         placeholder="PO - 000"
                                     />
                                 </div>
