@@ -42,8 +42,8 @@ const RecordPaymentModal = ({ isOpen, onClose }) => {
     const fetchInitialData = async () => {
         try {
             const [custRes, accRes] = await Promise.all([
-                fetch('http://localhost:5000/api/sales/customers'),
-                fetch('http://localhost:5000/api/accounts')
+                fetch('/api/sales/customers'),
+                fetch('/api/accounts')
             ]);
 
             const custData = await custRes.json();
@@ -62,7 +62,7 @@ const RecordPaymentModal = ({ isOpen, onClose }) => {
     const fetchCustomerInvoices = async (customerId) => {
         try {
             setLoading(true);
-            const res = await fetch(`http://localhost:5000/api/sales/customers/${customerId}/invoices`);
+            const res = await fetch(`/api/sales/customers/${customerId}/invoices`);
             const data = await res.json();
             setInvoices(data);
 
@@ -150,7 +150,7 @@ const RecordPaymentModal = ({ isOpen, onClose }) => {
                     amount: parseInt(allocations[id]) || 0
                 }));
 
-            const response = await fetch('http://localhost:5000/api/sales/payments', {
+            const response = await fetch('/api/sales/payments', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

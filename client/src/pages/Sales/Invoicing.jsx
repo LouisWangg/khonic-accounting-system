@@ -16,7 +16,7 @@ const Invoicing = () => {
     const fetchInvoices = async () => {
         try {
             setLoading(true);
-            const response = await fetch('http://localhost:5000/api/sales/invoices');
+            const response = await fetch('/api/sales/invoices');
             const data = await response.json();
 
             // Sort by due date ASC

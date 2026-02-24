@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { X, ChevronDown, Check } from 'lucide-react';
 
 const AddAccountModal = ({ isOpen, onClose, accounts = [], onAddAccount }) => {
@@ -14,6 +14,8 @@ const AddAccountModal = ({ isOpen, onClose, accounts = [], onAddAccount }) => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
     const dropdownRef = useRef(null);
+    const buttonRef = useRef(null);
+    const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0, width: 0 });
 
     useEffect(() => {
         let timer;
@@ -183,7 +185,7 @@ const AddAccountModal = ({ isOpen, onClose, accounts = [], onAddAccount }) => {
 
     return (
         <div className="fixed inset-0 flex items-center justify-center z-50 px-4" style={{ backgroundColor: 'rgba(0, 0, 0, 0.4)' }}>
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden relative">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg relative">
                 {/* Success View */}
                 {isSuccess && (
                     <div className="absolute inset-0 bg-white z-20 flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-300">
@@ -230,8 +232,19 @@ const AddAccountModal = ({ isOpen, onClose, accounts = [], onAddAccount }) => {
                                 <span className="text-red-500">*</span> Akun Induk
                             </label>
                             <button
+                                ref={buttonRef}
                                 type="button"
-                                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                                onClick={() => {
+                                    if (!isDropdownOpen && buttonRef.current) {
+                                        const rect = buttonRef.current.getBoundingClientRect();
+                                        setDropdownPos({
+                                            top: rect.bottom + window.scrollY + 8,
+                                            left: rect.left + window.scrollX,
+                                            width: rect.width,
+                                        });
+                                    }
+                                    setIsDropdownOpen(!isDropdownOpen);
+                                }}
                                 className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-gray-200 outline-none flex items-center justify-between bg-white text-left text-gray-900"
                             >
                                 <span className="truncate">
@@ -241,7 +254,15 @@ const AddAccountModal = ({ isOpen, onClose, accounts = [], onAddAccount }) => {
                             </button>
 
                             {isDropdownOpen && (
-                                <div className="absolute z-10 w-[200%] mt-2 bg-white border border-gray-100 rounded-xl shadow-xl max-h-64 overflow-y-auto py-2">
+                                <div
+                                    ref={dropdownRef}
+                                    className="fixed z-[9999] bg-white border border-gray-100 rounded-xl shadow-xl max-h-64 overflow-y-auto py-2"
+                                    style={{
+                                        top: dropdownPos.top,
+                                        left: dropdownPos.left,
+                                        width: dropdownPos.width * 2,
+                                    }}
+                                >
                                     {flatAccounts.map((acc) => {
                                         const isSelectable = acc.level < 3;
                                         return (
